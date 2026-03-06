@@ -104,13 +104,13 @@ def analyze_features():
     print("Анализ признаков завершен, графики сохранены")
     return True
 
-# Определение DAG
+# Определение DAG - ИСПРАВЛЕНО: убран concurrency, добавлены правильные параметры
 dag_students = DAG(
     dag_id="train_students_pipe",
     start_date=datetime(2025, 2, 3),
-    concurrency=4,
-    schedule_interval=timedelta(minutes=5),
+    max_active_tasks=4,  # вместо concurrency
     max_active_runs=1,
+    schedule=timedelta(minutes=5),
     catchup=False,
     description="Pipeline for training model on students dataset"
 )
