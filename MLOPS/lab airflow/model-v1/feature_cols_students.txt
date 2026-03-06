@@ -1,0 +1,10 @@
+study_hours
+sleep_hours
+stress_level
+attendance_rate
+screen_time_hours
+caffeine_intake
+learning_efficiency
+fatigue_index
+quiz_score
+assignment_score
