@@ -37,7 +37,7 @@ def eval_metrics(actual, pred):
 
 def train():
     # Загружаем локальный файл
-    df = pd.read_csv("./students.csv")
+    df = pd.read_csv("/home/gleb/mlops/ml_lab1/MLOPS/lab airflow/students_clear.csv")
     
     # Удаляем student_id и week, так как это идентификаторы
     df = df.drop(columns=['student_id', 'week'], errors='ignore')
@@ -107,7 +107,7 @@ def train():
         print(f"Модель обучена. RMSE: {rmse:.4f}, R2: {r2:.4f}, MAE: {mae:.4f}")
         print(f"Лучшие параметры: {best.get_params()}")
     
-    return best
+    return "Model training completed successfully"
 
 
 if __name__ == "__main__":

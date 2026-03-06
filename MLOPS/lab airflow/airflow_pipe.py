@@ -18,7 +18,7 @@ from train_model import train
 def prepare_data():
     """Подготовка данных для обучения"""
     # Загружаем локальный файл
-    df = pd.read_csv("./students.csv")
+    df = pd.read_csv("/home/gleb/mlops/ml_lab1/MLOPS/lab airflow/students.csv")
     
     print(f"Исходный датасет: {df.shape}")
     print(f"Колонки: {df.columns.tolist()}")
@@ -58,14 +58,14 @@ def prepare_data():
     print(f"Корреляции с performance_index:\n{correlations}")
     
     # Сохраняем очищенные данные
-    df.to_csv('./students_clear.csv', index=False)
+    df.to_csv('/home/gleb/mlops/ml_lab1/MLOPS/lab airflow/students_clear.csv', index=False)
     print(f"Очищенный датасет: {df.shape}")
     
     return True
 
 def analyze_features():
     """Анализ важности признаков"""
-    df = pd.read_csv("./students_clear.csv")
+    df = pd.read_csv("/home/gleb/mlops/ml_lab1/MLOPS/lab airflow/students_clear.csv")
     
     # Визуализация распределения целевой переменной
     plt.figure(figsize=(10, 6))
