@@ -1,28 +1,40 @@
 #!/bin/bash
-set -e
 
-echo "========================================"
-echo "  JENKINS ML PIPELINE"
-echo "========================================"
+# ============================================
+# JENKINS ML PIPELINE
+# ============================================
 
-# Этап 1: Данные
-echo -e "\n[STAGE 1/4] Получение данных..."
+#№1. download
+python3 -m venv ./my_env
+. ./my_env/bin/activate
+cd ./mlflow_car_price
+python3 -m ensurepip --upgrade
+pip3 install setuptools
+pip3 install -r requirements.txt
 python3 download.py
+#-----------------------
 
-# Этап 2: Обучение
-echo -e "\n[STAGE 2/4] Обучение модели..."
-python3 train_model.py
+#№2. train_model 
+echo "Start train model"
+cd /var/lib/jenkins/workspace/download/
+. ./my_env/bin/activate
+cd ./mlflow_car_price
+python3 train_model.py > best_model.txt
+#------------------------
 
-# Этап 3: Развертывание
-echo -e "\n[STAGE 3/4] Развертывание модели..."
+#3. deploy 
+cd /var/lib/jenkins/workspace/download/
+. ./my_env/bin/activate
+cd ./mlflow_car_price
 export BUILD_ID=dontKillMe
-python3 deploy.py
+export JENKINS_NODE_COOKIE=dontKillMe
+path_model=$(cat best_model.txt)
+mlflow models serve -m $path_model -p 5003 --no-conda &
+#------------------------
 
-# Этап 4: Проверка
-echo -e "\n[STAGE 4/4] Проверка сервиса..."
-sleep 3
-bash health_check.sh
-
-echo -e "\n========================================"
-echo "  PIPELINE УСПЕШНО ЗАВЕРШЕН!"
-echo "========================================"
+#4. healthy
+sleep 5
+curl http://127.0.0.1:5003/invocations \
+    -H "Content-Type: application/json" \
+    --data '{"dataframe_split": {"columns": ["Year", "Mileage", "Engine_size", "Brand_id", "Model_id", "Fuel_type_id"], "data": [[2019, 50000, 2.0, 1, 5, 1]]}}'
+#------------------------
