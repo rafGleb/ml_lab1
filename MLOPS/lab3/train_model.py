@@ -97,12 +97,12 @@ def train_models(X_train, X_test, y_train, y_test):
                 run_id = mlflow.active_run().info.run_id
                 best_path = f"runs:/{run_id}/model"
     
-    print("-" * 60)
-    
     # Выводим путь к лучшей модели (для deploy)
     with open("best_model.txt", "w") as f:
         f.write(best_path)
-    
+
+
+    print("-" * 60)
     print(f"\n[RESULT] Лучшая модель: {best_path} (R² = {best_r2:.4f})")
     
     return best_path
