@@ -100,11 +100,10 @@ def train_models(X_train, X_test, y_train, y_test):
     print("-" * 60)
     
     # Выводим путь к лучшей модели (для deploy)
-    print(f"\n[RESULT] Лучшая модель: {best_path} (R² = {best_r2:.4f})")
-    
-    # Сохраняем путь в файл для следующего этапа
     with open("best_model.txt", "w") as f:
         f.write(best_path)
+    
+    print(f"\n[RESULT] Лучшая модель: {best_path} (R² = {best_r2:.4f})")
     
     return best_path
 
