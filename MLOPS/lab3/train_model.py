@@ -30,7 +30,6 @@ def load_data():
     return X_train, X_test, y_train, y_test
 
 def train_models(X_train, X_test, y_train, y_test):
-    print("[INFO] Настройка MLflow...")
     mlflow.set_experiment("Car_Price_Prediction")
     
     models = {
@@ -44,15 +43,11 @@ def train_models(X_train, X_test, y_train, y_test):
     
     cv = KFold(n_splits=5, shuffle=True, random_state=42)
     
-    print("\n[INFO] Обучение моделей с MLflow трекингом...")
-    print("-" * 60)
-    
     best_r2 = -1
     best_path = ""
     
     for name, model in models.items():
         with mlflow.start_run(run_name=name):
-            # Логируем параметры
             if name == "RandomForest":
                 mlflow.log_param("n_estimators", 100)
             elif name == "HistGradientBoosting":
@@ -63,21 +58,16 @@ def train_models(X_train, X_test, y_train, y_test):
                 mlflow.log_param("alpha", 0.1)
             mlflow.log_param("model_type", name)
             
-            # Кросс-валидация
             scores = cross_val_score(model, X_train, y_train, cv=cv,
                                     scoring='neg_mean_squared_error', n_jobs=-1)
             rmse_scores = np.sqrt(-scores)
-            cv_rmse_mean = rmse_scores.mean()
-            cv_rmse_std = rmse_scores.std()
             
-            mlflow.log_metric("cv_rmse_mean", cv_rmse_mean)
-            mlflow.log_metric("cv_rmse_std", cv_rmse_std)
+            mlflow.log_metric("cv_rmse_mean", rmse_scores.mean())
+            mlflow.log_metric("cv_rmse_std", rmse_scores.std())
             
-            # Обучение
             model.fit(X_train, y_train)
             y_pred = model.predict(X_test)
             
-            # Метрики
             test_rmse = np.sqrt(mean_squared_error(y_test, y_pred))
             test_mae = mean_absolute_error(y_test, y_pred)
             test_r2 = r2_score(y_test, y_pred)
@@ -86,24 +76,16 @@ def train_models(X_train, X_test, y_train, y_test):
             mlflow.log_metric("test_mae", test_mae)
             mlflow.log_metric("test_r2", test_r2)
             
-            # Сохраняем модель
             mlflow.sklearn.log_model(model, "model")
             
-            print(f"{name:<25} | CV RMSE: {cv_rmse_mean:.4f} | Test RMSE: {test_rmse:.4f} | Test R²: {test_r2:.4f}")
-            
-            # Запоминаем лучшую модель
             if test_r2 > best_r2:
                 best_r2 = test_r2
                 run_id = mlflow.active_run().info.run_id
                 best_path = f"runs:/{run_id}/model"
     
-    # Выводим путь к лучшей модели (для deploy)
+    # Записываем ТОЛЬКО путь в файл
     with open("best_model.txt", "w") as f:
         f.write(best_path)
-
-
-    print("-" * 60)
-    print(f"\n[RESULT] Лучшая модель: {best_path} (R² = {best_r2:.4f})")
     
     return best_path
 
